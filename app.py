@@ -11,18 +11,24 @@ from gtts import gTTS
 import tempfile
 import speech_recognition as sr
 from audio_recorder_streamlit import audio_recorder
+
+import os
+from dotenv import load_dotenv
 from openai import OpenAI
 
 # =========================================================
-# OPENAI CHATGPT API
+# LOAD API KEY SAFELY
 # =========================================================
 
-client = OpenAI(api_key="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")
+load_dotenv()
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+# =========================================================
 # PAGE CONFIG
 # =========================================================
 
 st.set_page_config(
-    page_title="AI Government Form Assistant",                                                                                                                                                                    
+    page_title="AI Government Form Assistant",
     page_icon="🇱🇰",
     layout="wide"
 )
@@ -167,20 +173,17 @@ if user_question:
     with st.spinner("Thinking..."):
 
         try:
-            prompt = f"""
-You are a Sri Lankan Government Form Assistant.
-
-Answer clearly in {selected_language}.
-
-User Question:
-{user_question}
-"""
-
             response = client.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=[
-                    {"role": "system", "content": "You are a helpful government form assistant."},
-                    {"role": "user", "content": prompt}
+                    {
+                        "role": "system",
+                        "content": "You are a helpful Sri Lankan government form assistant."
+                    },
+                    {
+                        "role": "user",
+                        "content": user_question
+                    }
                 ]
             )
 
