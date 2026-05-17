@@ -1,46 +1,110 @@
 # =========================================================
-# SRI LANKA AI GOVERNMENT FORM ASSISTANT
-# FINAL AI CHATBOT + VOICE VERSION
+# 🇱🇰 ADVANCED AI GOVERNMENT FORM ASSISTANT
+# Made By Jathusvarman
 # =========================================================
 
 import streamlit as st
 from PIL import Image
 import pytesseract
 from deep_translator import GoogleTranslator
-import numpy as np
 from gtts import gTTS
 import tempfile
+import speech_recognition as sr
+from audio_recorder_streamlit import audio_recorder
+import google.generativeai as genai
 
 # =========================================================
-# PAGE SETTINGS
+# GEMINI AI API
+# =========================================================
+
+genai.configure(api_key="YOUR_GEMINI_API_KEY")
+
+model = genai.GenerativeModel("gemini-1.5-flash")
+
+# =========================================================
+# PAGE CONFIG
 # =========================================================
 
 st.set_page_config(
     page_title="AI Government Form Assistant",
-    page_icon="🇱🇰",
+    page_icon="VJ",
     layout="wide"
 )
+
+# =========================================================
+# CUSTOM CSS
+# =========================================================
+
+st.markdown("""
+<style>
+
+.stApp{
+    background: linear-gradient(to right,#0f172a,#1e293b);
+    color:white;
+}
+
+h1,h2,h3,h4,h5,h6,p,label{
+    color:white;
+}
+
+.chat-box{
+    background:#1e293b;
+    padding:15px;
+    border-radius:15px;
+    margin-top:10px;
+    color:white;
+    font-size:18px;
+}
+
+.stTextInput > div > div > input{
+    background-color:#1e293b;
+    color:white;
+    border-radius:10px;
+}
+
+.stButton button{
+    border-radius:10px;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+# =========================================================
+# SIDEBAR
+# =========================================================
+
+with st.sidebar:
+
+    st.title("🤖 AI Assistant")
+
+    st.info("""
+    🇱🇰 Sri Lanka Government Form Helper
+
+    ✅ OCR Scanner
+    ✅ AI Chatbot
+    ✅ Translation
+    ✅ Voice Assistant
+    ✅ Multi Language
+    """)
+
+    st.write("---")
+
+    st.write("Made By Jathusvarman")
 
 # =========================================================
 # TITLE
 # =========================================================
 
 st.title("🇱🇰 AI Government Form Assistant")
-st.subheader("Tamil • Sinhala • English • Multi-Language Support")
+
+st.subheader("Tamil • Sinhala • English • Hindi")
 
 st.write("""
-Upload a government form and get:
-
-- OCR text reading
-- Translation
-- AI guidance
-- Missing field detection
-- AI chatbot support
-- Voice assistant
+Upload government forms and ask questions using text or voice.
 """)
 
 # =========================================================
-# LANGUAGE SELECTION
+# LANGUAGE
 # =========================================================
 
 languages = {
@@ -58,23 +122,24 @@ selected_language = st.selectbox(
 target_lang = languages[selected_language]
 
 # =========================================================
-# IMAGE INPUT
+# FILE UPLOAD
 # =========================================================
 
-st.write("## 📄 Upload Form")
+st.write("## 📄 Upload Government Form")
 
 uploaded_file = st.file_uploader(
-    "Upload JPG / PNG Form",
+    "Upload JPG / PNG Image",
     type=["jpg", "jpeg", "png"]
 )
 
 image = None
 
 if uploaded_file is not None:
+
     image = Image.open(uploaded_file)
 
 # =========================================================
-# PROCESS IMAGE
+# OCR SECTION
 # =========================================================
 
 if image is not None:
@@ -85,13 +150,7 @@ if image is not None:
         use_container_width=True
     )
 
-    st.write("## 🔍 Reading Form Text...")
-
-    extracted_text = ""
-
-    # =====================================================
-    # OCR
-    # =====================================================
+    st.write("## 🔍 Extracting Text")
 
     try:
 
@@ -101,19 +160,14 @@ if image is not None:
         )
 
         st.write("### 📄 Extracted Text")
+
         st.text(extracted_text)
 
-    except Exception as e:
+        # =================================================
+        # TRANSLATION
+        # =================================================
 
-        st.error(f"OCR Error: {e}")
-
-    # =====================================================
-    # TRANSLATION
-    # =====================================================
-
-    st.write("## 🌐 Translation")
-
-    try:
+        st.write("## 🌐 Translation")
 
         translated_text = GoogleTranslator(
             source='auto',
@@ -124,231 +178,186 @@ if image is not None:
 
     except Exception as e:
 
-        st.error(f"Translation Error: {e}")
-
-    # =====================================================
-    # FIELD GUIDANCE
-    # =====================================================
-
-    st.write("## 🤖 AI Field Guidance")
-
-    field_guides = {
-
-        "Surname": {
-            "English": "Enter your family name.",
-            "Tamil": "உங்கள் குடும்பப்பெயரை எழுதுங்கள்.",
-            "Sinhala": "ඔබගේ වාසගම ඇතුළත් කරන්න."
-        },
-
-        "NIC Number": {
-            "English": "Enter your NIC number.",
-            "Tamil": "உங்கள் அடையாள அட்டை எண்ணை எழுதுங்கள்.",
-            "Sinhala": "ඔබගේ හැඳුනුම්පත් අංකය ඇතුළත් කරන්න."
-        },
-
-        "Date of Birth": {
-            "English": "Enter your birth date.",
-            "Tamil": "உங்கள் பிறந்த தேதியை எழுதுங்கள்.",
-            "Sinhala": "ඔබගේ උපන්දිනය ඇතුළත් කරන්න."
-        }
-    }
-
-    found_field = False
-
-    for field, explanation in field_guides.items():
-
-        if field.lower() in extracted_text.lower():
-
-            found_field = True
-
-            st.info(field)
-
-            if selected_language in explanation:
-                st.write(explanation[selected_language])
-            else:
-                st.write(explanation["English"])
-
-    if not found_field:
-        st.warning("No known fields detected.")
-
-    # =====================================================
-    # MISSING FIELD DETECTION
-    # =====================================================
-
-    st.write("## ⚠️ Missing Field Detection")
-
-    required_fields = [
-        "Surname",
-        "NIC Number",
-        "Date of Birth"
-    ]
-
-    missing = []
-
-    for field in required_fields:
-
-        if field.lower() not in extracted_text.lower():
-            missing.append(field)
-
-    if len(missing) == 0:
-
-        st.success("✅ No important fields missing.")
-
-    else:
-
-        for m in missing:
-            st.warning(f"Possible Missing Field: {m}")
+        st.error(f"OCR Error: {e}")
 
 # =========================================================
-# SMART AI CHATBOT
+# AI CHATBOT
 # =========================================================
 
-st.write("--------------------------------------------------")
+st.write("---")
+
 st.write("## 🤖 Smart AI Assistant")
 
 st.write("""
-Ask questions like:
+Examples:
 - What is NIC?
-- How to fill surname?
+- What is surname?
+- Explain passport
 - What is permanent address?
-- Hello
+- How to fill government forms?
 """)
 
-user_question = st.text_input(
-    "💬 Ask Your Question"
+# =========================================================
+# VOICE INPUT
+# =========================================================
+
+st.write("## 🎤 Voice Input")
+
+audio_bytes = audio_recorder(
+    text="Click To Record",
+    recording_color="#ff0000",
+    neutral_color="#00ff00",
+    icon_name="microphone",
+    icon_size="2x"
 )
 
-ai_answer = ""
+voice_question = ""
 
-if user_question:
+if audio_bytes:
 
-    question = user_question.lower()
+    st.audio(audio_bytes, format="audio/wav")
 
-    # =====================================================
-    # AI ANSWERS
-    # =====================================================
+    with tempfile.NamedTemporaryFile(
+        delete=False,
+        suffix=".wav"
+    ) as f:
 
-    if "nic" in question:
+        f.write(audio_bytes)
 
-        if selected_language == "Tamil":
-            ai_answer = "NIC என்பது தேசிய அடையாள அட்டை எண்."
+        audio_path = f.name
 
-        elif selected_language == "Sinhala":
-            ai_answer = "NIC යනු ජාතික හැඳුනුම්පත් අංකයයි."
-
-        else:
-            ai_answer = "NIC means National Identity Card Number."
-
-    elif "surname" in question:
-
-        if selected_language == "Tamil":
-            ai_answer = "Surname என்பது குடும்பப்பெயர்."
-
-        elif selected_language == "Sinhala":
-            ai_answer = "Surname යනු ඔබගේ වාසගමයි."
-
-        else:
-            ai_answer = "Surname means your family name."
-
-    elif "address" in question:
-
-        if selected_language == "Tamil":
-            ai_answer = "Permanent Address என்பது உங்கள் நிரந்தர முகவரி."
-
-        elif selected_language == "Sinhala":
-            ai_answer = "Permanent Address යනු ඔබගේ ස්ථිර ලිපිනයයි."
-
-        else:
-            ai_answer = "Permanent Address means your home address."
-
-    elif "birth" in question:
-
-        if selected_language == "Tamil":
-            ai_answer = "உங்கள் பிறந்த தேதியை சரியாக எழுதுங்கள்."
-
-        elif selected_language == "Sinhala":
-            ai_answer = "ඔබගේ උපන්දිනය නිවැරදිව ඇතුළත් කරන්න."
-
-        else:
-            ai_answer = "Enter your correct birth date."
-
-    elif "hello" in question:
-
-        if selected_language == "Tamil":
-            ai_answer = "வணக்கம்! நான் உங்கள் AI உதவியாளர்."
-
-        elif selected_language == "Sinhala":
-            ai_answer = "ආයුබෝවන්! මම ඔබගේ AI සහායකයා."
-
-        else:
-            ai_answer = "Hello! I am your AI Government Form Assistant."
-
-    elif "how to fill" in question:
-
-        if selected_language == "Tamil":
-            ai_answer = "ஒவ்வொரு புலத்தையும் கவனமாக நிரப்புங்கள்."
-
-        elif selected_language == "Sinhala":
-            ai_answer = "සෑම කොටසක්ම සැලකිලිමත්ව පුරවන්න."
-
-        else:
-            ai_answer = "Fill every field carefully."
-
-    else:
-
-        if selected_language == "Tamil":
-            ai_answer = "மன்னிக்கவும். அந்த கேள்வி இன்னும் ஆதரிக்கப்படவில்லை."
-
-        elif selected_language == "Sinhala":
-            ai_answer = "සමාවන්න. එම ප්‍රශ්නයට තවම සහය නොමැත."
-
-        else:
-            ai_answer = "Sorry, I do not understand that question yet."
-
-    # =====================================================
-    # SHOW ANSWER
-    # =====================================================
-
-    st.success(ai_answer)
-
-    # =====================================================
-    # VOICE OUTPUT
-    # =====================================================
+    recognizer = sr.Recognizer()
 
     try:
 
-        tts = gTTS(ai_answer)
+        with sr.AudioFile(audio_path) as source:
 
-        temp_audio = tempfile.NamedTemporaryFile(
-            delete=False,
-            suffix=".mp3"
+            audio = recognizer.record(source)
+
+        voice_question = recognizer.recognize_google(
+            audio,
+            language=target_lang
         )
 
-        tts.save(temp_audio.name)
-
-        st.audio(temp_audio.name)
+        st.success(f"You said: {voice_question}")
 
     except Exception as e:
 
-        st.error(f"Voice Error: {e}")
+        st.error(f"Voice Recognition Error: {e}")
+
+# =========================================================
+# TEXT INPUT
+# =========================================================
+
+text_question = st.text_input(
+    "💬 Ask Your Question"
+)
+
+user_question = ""
+
+if text_question:
+
+    user_question = text_question
+
+elif voice_question:
+
+    user_question = voice_question
+
+# =========================================================
+# AI RESPONSE
+# =========================================================
+
+if user_question:
+
+    with st.spinner("Thinking..."):
+
+        try:
+
+            prompt = f"""
+            You are a helpful Sri Lankan Government Form AI Assistant.
+
+            Answer clearly in {selected_language} language.
+
+            Help users understand:
+            - NIC
+            - Passport
+            - Birth certificate
+            - Government applications
+            - Address fields
+            - Personal details
+            - School forms
+            - Official forms
+
+            User Question:
+            {user_question}
+            """
+
+            response = model.generate_content(prompt)
+
+            ai_answer = response.text
+
+            st.markdown(f"""
+            <div class="chat-box">
+            🤖 {ai_answer}
+            </div>
+            """, unsafe_allow_html=True)
+
+            # =============================================
+            # TEXT TO SPEECH
+            # =============================================
+
+            try:
+
+                tts = gTTS(
+                    text=ai_answer,
+                    lang=target_lang
+                )
+
+                temp_audio = tempfile.NamedTemporaryFile(
+                    delete=False,
+                    suffix=".mp3"
+                )
+
+                tts.save(temp_audio.name)
+
+                st.audio(temp_audio.name)
+
+            except Exception as e:
+
+                st.error(f"Voice Output Error: {e}")
+
+        except Exception as e:
+
+            st.error(f"AI Error: {e}")
 
 # =========================================================
 # FUTURE FEATURES
 # =========================================================
 
-st.write("--------------------------------------------------")
+st.write("---")
 
-st.write("## 🚀 Future AI Features")
+st.write("## 🚀 Future Features")
 
 st.write("""
-🎤 Voice Assistant  
-🧠 Advanced AI Chatbot  
-📄 PDF Form Reading  
-✍️ Auto Form Filling  
-🌐 Government Website Navigation  
-📱 Mobile App Version  
-🔊 Text-to-Speech Guidance  
-📌 Smart Error Detection  
-☁️ Cloud Database Support  
+🧠 Real-time AI support  
+📄 PDF support  
+📱 Mobile app  
+☁️ Database storage  
+🔊 Better voice assistant  
+🌐 Sinhala OCR  
+📷 Camera scanner  
 """)
-           
+st.write("## Made BY Vilvarasan Jathusvarman ")
+
+# =========================================================
+# FOOTER
+# =========================================================
+
+st.write("---")
+
+st.markdown("""
+<center>
+<h4>🇱🇰 AI Government Form Assistant</h4>
+<p>Made By Jathusvarman</p>
+</center>
+""", unsafe_allow_html=True)
