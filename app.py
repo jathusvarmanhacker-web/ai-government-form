@@ -17,9 +17,7 @@ from openai import OpenAI
 # OPENAI CHATGPT API
 # =========================================================
 
-client = OpenAI(api_key="YOUR_NEW_OPENAI_API_KEY")
-
-# =========================================================
+client = OpenAI(api_key=""
 # PAGE CONFIG
 # =========================================================
 
