@@ -17,12 +17,12 @@ from openai import OpenAI
 # OPENAI CHATGPT API
 # =========================================================
 
-client = OpenAI(api_key="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"
+client = OpenAI(api_key="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")
 # PAGE CONFIG
 # =========================================================
 
 st.set_page_config(
-    page_title="AI Government Form Assistant",
+    page_title="AI Government Form Assistant",                                                                                                                                                                    
     page_icon="🇱🇰",
     layout="wide"
 )
