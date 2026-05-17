@@ -1,6 +1,6 @@
 # =========================================================
-# 🇱🇰 AI GOVERNMENT FORM ASSISTANT (FINAL PRO VERSION)
-# Made By Vilvarasan Jathusvarman
+# 🇱🇰 AI GOVERNMENT FORM ASSISTANT (PRO UPGRADED VERSION)
+# Made By Jathusvarman
 # =========================================================
 
 import streamlit as st
@@ -16,7 +16,7 @@ from dotenv import load_dotenv
 from openai import OpenAI
 
 # =========================================================
-# API KEY
+# LOAD API KEY
 # =========================================================
 
 load_dotenv()
@@ -24,7 +24,7 @@ api_key = os.getenv("OPENAI_API_KEY")
 client = OpenAI(api_key=api_key) if api_key else None
 
 # =========================================================
-# UI LANGUAGE SYSTEM
+# LANGUAGE SYSTEM (UI + OUTPUT)
 # =========================================================
 
 UI_TEXT = {
@@ -33,68 +33,70 @@ UI_TEXT = {
         "upload": "Upload Form",
         "voice": "Voice Input",
         "ask": "Ask Your Question",
-        "form": "Government Form Data",
-        "summary": "Show Form Summary",
-        "sidebar": "AI Assistant"
+        "sidebar": "AI Assistant",
+        "online": "ONLINE MODE",
+        "offline": "OFFLINE MODE",
     },
     "Tamil": {
         "title": "AI அரசு படிவ உதவியாளர்",
         "upload": "படிவத்தை பதிவேற்றவும்",
         "voice": "குரல் உள்ளீடு",
-        "ask": "உங்கள் கேள்வி",
-        "form": "அரசு படிவ தரவு",
-        "summary": "படிவ சுருக்கம்",
-        "sidebar": "AI உதவியாளர்"
+        "ask": "உங்கள் கேள்வியை கேளுங்கள்",
+        "sidebar": "AI உதவியாளர்",
+        "online": "ஆன்லைன் முறை",
+        "offline": "ஆஃப்லைன் முறை",
     },
     "Sinhala": {
         "title": "AI රජයේ පෝරම සහායක",
         "upload": "පෝරමය උඩුගත කරන්න",
         "voice": "හඬ ආදානය",
-        "ask": "ඔබේ ප්‍රශ්නය",
-        "form": "රජයේ පෝරම දත්ත",
-        "summary": "පෝරම සාරාංශය",
-        "sidebar": "AI සහායක"
+        "ask": "ඔබේ ප්‍රශ්නය අසන්න",
+        "sidebar": "AI සහායක",
+        "online": "මාර්ගගත ක්‍රමය",
+        "offline": "අක්‍රිය ක්‍රමය",
     },
     "Hindi": {
         "title": "AI सरकारी फॉर्म सहायक",
         "upload": "फॉर्म अपलोड करें",
         "voice": "आवाज़ इनपुट",
-        "ask": "अपना प्रश्न",
-        "form": "सरकारी फॉर्म डेटा",
-        "summary": "फॉर्म सारांश",
-        "sidebar": "AI सहायक"
+        "ask": "अपना प्रश्न पूछें",
+        "sidebar": "AI सहायक",
+        "online": "ऑनलाइन मोड",
+        "offline": "ऑफलाइन मोड",
     }
 }
-
-OWNER_NAME = "👤 Made By Vilvarasan Jathusvarman"
 
 # =========================================================
 # OFFLINE BOT
 # =========================================================
 
-def offline_bot(q):
-    q = q.lower()
+def offline_bot(question):
+    q = question.lower()
 
-    if "name" in q:
-        return "Full Name means your complete legal name."
-    elif "dob" in q:
-        return "Date of Birth is DD/MM/YYYY format."
-    elif "nic" in q:
-        return "NIC is National Identity Card number in Sri Lanka."
-    elif "address" in q:
-        return "Address is your home location."
-    elif "phone" in q:
-        return "Phone number is your contact number."
-    elif "email" in q:
-        return "Email is used for communication."
-    else:
-        return "Ask about Name, NIC, Address, DOB, Phone, Email."
+    knowledge = {
+        "name": "Full Name means your complete legal name.",
+        "dob": "Date of Birth is your birth date (DD/MM/YYYY).",
+        "address": "Address means your home location details.",
+        "phone": "Phone Number is your contact number.",
+        "email": "Email is used for communication.",
+        "nationality": "Nationality means your country.",
+        "gender": "Gender can be male, female, or other.",
+        "occupation": "Occupation means job or student status.",
+        "nic": "In Sri Lanka, ID is NIC (National Identity Card).",
+        "signature": "Signature is your official confirmation mark."
+    }
+
+    for k in knowledge:
+        if k in q:
+            return knowledge[k]
+
+    return "I can help with Name, NIC, Address, Email, Phone, DOB, and government form fields."
 
 # =========================================================
-# AI ENGINE
+# AI RESPONSE ENGINE (HYBRID)
 # =========================================================
 
-def get_ai_response(question, selected_language, form_data):
+def get_ai_response(question, selected_language):
 
     if client:
         try:
@@ -104,20 +106,22 @@ def get_ai_response(question, selected_language, form_data):
                     {
                         "role": "system",
                         "content": f"""
-You are a Government Form Assistant.
+You are a Sri Lankan Government Form Assistant.
 
-Rules:
-- Respond in {selected_language}
-- Use user form data if needed
-- Be simple and clear
+RULES:
+- Detect user input language automatically.
+- Always respond in {selected_language}.
+- Give simple, clear answers.
+- Focus on government forms (NIC, Name, Address, DOB, Email, Phone).
 """
                     },
                     {
                         "role": "user",
-                        "content": f"Form Data: {form_data}\n\nQuestion: {question}"
+                        "content": question
                     }
                 ]
             )
+
             return res.choices[0].message.content
 
         except:
@@ -142,8 +146,15 @@ st.set_page_config(
 selected_language = st.selectbox("🌐 Language", list(UI_TEXT.keys()))
 ui = UI_TEXT[selected_language]
 
+target_lang = {
+    "English": "en",
+    "Tamil": "ta",
+    "Sinhala": "si",
+    "Hindi": "hi"
+}[selected_language]
+
 # =========================================================
-# UI STYLE
+# STYLE
 # =========================================================
 
 st.markdown("""
@@ -152,24 +163,29 @@ st.markdown("""
     background: linear-gradient(to right,#0f172a,#1e293b);
     color:white;
 }
-h1,h2,h3,p,label{
+h1,h2,h3,h4,h5,h6,p,label{
     color:white;
 }
-.box{
+.chat-box{
     background:#1e293b;
     padding:15px;
-    border-radius:10px;
+    border-radius:15px;
+    color:white;
 }
 </style>
 """, unsafe_allow_html=True)
 
 # =========================================================
-# SIDEBAR (OWNER ALWAYS SHOWN)
+# SIDEBAR
 # =========================================================
 
 with st.sidebar:
     st.title(ui["sidebar"])
-    st.success(OWNER_NAME)
+
+    if client:
+        st.success(ui["online"])
+    else:
+        st.warning(ui["offline"])
 
 # =========================================================
 # TITLE
@@ -178,41 +194,12 @@ with st.sidebar:
 st.title(ui["title"])
 
 # =========================================================
-# 🧾 FORM DATA SYSTEM
-# =========================================================
-
-st.write("## 🧾 " + ui["form"])
-
-full_name = st.text_input("Full Name")
-dob = st.text_input("Date of Birth")
-address = st.text_area("Address")
-phone = st.text_input("Phone")
-email = st.text_input("Email")
-nic = st.text_input("NIC")
-occupation = st.text_input("Occupation")
-
-form_data = {
-    "Full Name": full_name,
-    "DOB": dob,
-    "Address": address,
-    "Phone": phone,
-    "Email": email,
-    "NIC": nic,
-    "Occupation": occupation
-}
-
-if st.button(ui["summary"]):
-    st.write("## 📄 Form Summary")
-    for k, v in form_data.items():
-        st.write(f"**{k}:** {v}")
-
-# =========================================================
 # OCR
 # =========================================================
 
 st.write("## 📄 " + ui["upload"])
 
-uploaded_file = st.file_uploader("Upload Image", type=["jpg","jpeg","png"])
+uploaded_file = st.file_uploader("Upload JPG/PNG", type=["jpg","jpeg","png"])
 
 image = None
 if uploaded_file:
@@ -220,11 +207,23 @@ if uploaded_file:
 
 if image:
     st.image(image, use_container_width=True)
-    text = pytesseract.image_to_string(image)
-    st.text(text)
+
+    try:
+        text = pytesseract.image_to_string(image)
+        st.text(text)
+
+        translated = GoogleTranslator(
+            source='auto',
+            target=target_lang
+        ).translate(text)
+
+        st.success(translated)
+
+    except Exception as e:
+        st.error(f"OCR Error: {e}")
 
 # =========================================================
-# VOICE INPUT
+# VOICE
 # =========================================================
 
 st.write("## 🎤 " + ui["voice"])
@@ -248,35 +247,33 @@ if audio_bytes:
         voice_question = r.recognize_google(audio)
         st.success(voice_question)
 
-    except:
-        st.error("Voice Error")
+    except Exception as e:
+        st.error(f"Voice Error: {e}")
 
 # =========================================================
-# CHAT INPUT
+# TEXT INPUT
 # =========================================================
 
 text_question = st.text_input(ui["ask"])
 user_question = text_question or voice_question
 
 # =========================================================
-# AI RESPONSE
+# CHATBOT OUTPUT
 # =========================================================
 
 if user_question:
 
     with st.spinner("Thinking..."):
-        answer = get_ai_response(user_question, selected_language, form_data)
+        answer = get_ai_response(user_question, selected_language)
 
         st.markdown(f"""
-        <div class="box">
+        <div class="chat-box">
         🤖 {answer}
-        <br><br>
-        {OWNER_NAME}
         </div>
         """, unsafe_allow_html=True)
 
         try:
-            tts = gTTS(text=answer, lang="en")
+            tts = gTTS(text=answer, lang=target_lang)
             temp = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
             tts.save(temp.name)
             st.audio(temp.name)
@@ -288,4 +285,4 @@ if user_question:
 # =========================================================
 
 st.write("---")
-st.markdown(f"🇱🇰 {OWNER_NAME}")
+st.markdown("🇱🇰 Made By Jathusvarman")
