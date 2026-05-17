@@ -19,8 +19,7 @@ st.write("APP STARTED")
 # TESSERACT OCR PATH
 # =========================================================
 
-pytesseract.pytesseract.tesseract_cmd = \
-r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+
 
 # =========================================================
 # PAGE SETTINGS
