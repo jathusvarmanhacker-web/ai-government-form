@@ -21,7 +21,7 @@ import google.generativeai as genai
 genai.configure(api_key="AIzaSyDCtzP6_skl5A9S1W2NlGAI08NDN0n5--I")
 
 # ✅ FIXED MODEL
-model = genai.GenerativeModel("gemini-1.5-flash")
+model = genai.GenerativeModel("gemini-2.0-flash")
 
 # =========================================================
 # PAGE CONFIG
