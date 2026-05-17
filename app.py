@@ -72,8 +72,8 @@ def offline_bot(question):
 
     elif "hello" in q:
         return "Hello! I am your Sri Lankan Government Form Assistant."
-        elif"owner" in q:
-            return"Jathusvarman Vilvarasan"in q:
+    elif"owner" in q:
+            return"Jathusvarman Vilvarasan"
 
     else:
         return "I can help with Name, DOB, Address, NIC, Email, Phone, Occupation, and more."
