@@ -17,16 +17,18 @@ import google.generativeai as genai
 # GEMINI AI API
 # =========================================================
 
-genai.configure(api_key="AIzaSyBT1bP2a644fVnNRGwPP72Gzgcl7Ni-NoE")
+genai.configure(api_key="YOUR_GEMINI_API_KEY")
 
+# ✅ FIXED MODEL
 model = genai.GenerativeModel("gemini-pro")
+
 # =========================================================
 # PAGE CONFIG
 # =========================================================
 
 st.set_page_config(
     page_title="AI Government Form Assistant",
-    page_icon="VJ",
+    page_icon="🇱🇰",
     layout="wide"
 )
 
@@ -346,7 +348,6 @@ st.write("""
 🌐 Sinhala OCR  
 📷 Camera scanner  
 """)
-st.write("## Made BY Vilvarasan Jathusvarman ")
 
 # =========================================================
 # FOOTER
