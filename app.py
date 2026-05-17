@@ -1,6 +1,6 @@
 # =========================================================
 # SRI LANKA AI GOVERNMENT FORM ASSISTANT
-# FIXED VERSION
+# WITH AI CHAT ASSISTANT
 # =========================================================
 
 import streamlit as st
@@ -8,18 +8,6 @@ from PIL import Image
 import pytesseract
 from deep_translator import GoogleTranslator
 import numpy as np
-
-# =========================================================
-# TEST MESSAGE
-# =========================================================
-
-st.write("APP STARTED")
-
-# =========================================================
-# TESSERACT OCR PATH
-# =========================================================
-
-
 
 # =========================================================
 # PAGE SETTINGS
@@ -40,10 +28,12 @@ st.subheader("Tamil • Sinhala • English • Multi-Language Support")
 
 st.write("""
 Upload a government form and get:
+
 - OCR text reading
 - Translation
 - AI guidance
 - Missing field detection
+- AI form assistant
 """)
 
 # =========================================================
@@ -207,6 +197,148 @@ if image is not None:
             st.warning(f"Possible Missing Field: {m}")
 
 # =========================================================
+# AI FORM ASSISTANT CHAT
+# =========================================================
+
+st.write("--------------------------------------------------")
+st.write("## 🤖 AI Form Assistant")
+
+st.write("""
+Ask questions like:
+- What is NIC?
+- How to fill surname?
+- What is permanent address?
+- How to upload form?
+""")
+
+user_question = st.text_input(
+    "💬 Ask Your Question"
+)
+
+if user_question:
+
+    question = user_question.lower()
+
+    if "nic" in question:
+
+        if selected_language == "Tamil":
+            st.success(
+                "NIC என்பது தேசிய அடையாள அட்டை எண்."
+            )
+
+        elif selected_language == "Sinhala":
+            st.success(
+                "NIC යනු ජාතික හැඳුනුම්පත් අංකයයි."
+            )
+
+        else:
+            st.success(
+                "NIC means National Identity Card Number."
+            )
+
+    elif "surname" in question:
+
+        if selected_language == "Tamil":
+            st.success(
+                "Surname என்பது குடும்பப்பெயர்."
+            )
+
+        elif selected_language == "Sinhala":
+            st.success(
+                "Surname යනු ඔබගේ වාසගමයි."
+            )
+
+        else:
+            st.success(
+                "Surname means your family name."
+            )
+
+    elif "address" in question:
+
+        if selected_language == "Tamil":
+            st.success(
+                "Permanent Address என்பது உங்கள் நிரந்தர முகவரி."
+            )
+
+        elif selected_language == "Sinhala":
+            st.success(
+                "Permanent Address යනු ඔබගේ ස්ථිර ලිපිනයයි."
+            )
+
+        else:
+            st.success(
+                "Permanent Address means your home address."
+            )
+
+    elif "date of birth" in question:
+
+        if selected_language == "Tamil":
+            st.success(
+                "உங்கள் பிறந்த தேதியை சரியாக எழுதுங்கள்."
+            )
+
+        elif selected_language == "Sinhala":
+            st.success(
+                "ඔබගේ උපන්දිනය නිවැරදිව ඇතුළත් කරන්න."
+            )
+
+        else:
+            st.success(
+                "Enter your birth date correctly."
+            )
+
+    elif "how to fill" in question:
+
+        if selected_language == "Tamil":
+            st.success(
+                "ஒவ்வொரு புலத்தையும் கவனமாக நிரப்புங்கள்."
+            )
+
+        elif selected_language == "Sinhala":
+            st.success(
+                "සෑම කොටසක්ම සැලකිලිමත්ව පුරවන්න."
+            )
+
+        else:
+            st.success(
+                "Fill every field carefully with correct details."
+            )
+
+    elif "upload" in question:
+
+        if selected_language == "Tamil":
+            st.success(
+                "JPG அல்லது PNG கோப்பை பதிவேற்றவும்."
+            )
+
+        elif selected_language == "Sinhala":
+            st.success(
+                "JPG හෝ PNG ගොනුවක් උඩුගත කරන්න."
+            )
+
+        else:
+            st.success(
+                "Upload a JPG or PNG form image."
+            )
+
+    else:
+
+        if selected_language == "Tamil":
+            st.info(
+                "மன்னிக்கவும். அந்த கேள்வி இன்னும் ஆதரிக்கப்படவில்லை."
+            )
+
+        elif selected_language == "Sinhala":
+            st.info(
+                "සමාවන්න. එම ප්‍රශ්නයට තවම සහය නොමැත."
+            )
+
+        else:
+            st.info(
+                "Sorry, I do not understand that question yet."
+            )
+
+# =========================================================
 # FUTURE FEATURES
 # =========================================================
 
@@ -221,4 +353,7 @@ st.write("""
 ✍️ Auto Form Filling  
 🌐 Government Website Navigation  
 📱 Mobile App Version  
+🔊 Text-to-Speech Guidance  
+📌 Smart Error Detection  
+☁️ Cloud Database Support                                                                                                             Made By V.Jathusvarman
 """)
