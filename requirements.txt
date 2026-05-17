@@ -1,9 +1,8 @@
 streamlit
+openai
 pillow
 pytesseract
 deep-translator
-numpy
 gtts
-SpeechRecognition
+speechrecognition
 audio-recorder-streamlit
-google-generativeai
