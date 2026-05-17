@@ -6,3 +6,4 @@ deep-translator
 gtts
 speechrecognition
 audio-recorder-streamlit
+python-dotenv
