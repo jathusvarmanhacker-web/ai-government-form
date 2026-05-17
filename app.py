@@ -1,5 +1,5 @@
 # =========================================================
-# 🇱🇰 AI GOVERNMENT FORM ASSISTANT (HYBRID VERSION)
+# 🇱🇰 AI GOVERNMENT FORM ASSISTANT (HYBRID + FORM DATA)
 # Made By Jathusvarman
 # =========================================================
 
@@ -22,36 +22,59 @@ from openai import OpenAI
 
 load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")
-
 client = OpenAI(api_key=api_key) if api_key else None
 
 # =========================================================
-# OFFLINE AI BOT (NO API REQUIRED)
+# OFFLINE FORM KNOWLEDGE BOT
 # =========================================================
 
 def offline_bot(question):
     q = question.lower()
 
-    if "nic" in q:
-        return "NIC is National Identity Card used in Sri Lanka."
+    if "full name" in q or "name" in q:
+        return "Full Name means your complete legal name as written in official documents."
 
-    elif "passport" in q:
-        return "Passport is an official travel document for international travel."
-
-    elif "birth" in q:
-        return "Birth certificate is an official record of birth details."
+    elif "date of birth" in q or "dob" in q:
+        return "Date of Birth is your birth date in DD/MM/YYYY format."
 
     elif "address" in q:
-        return "Address means your residential location details."
+        return "Address means your home location including street, city, and district."
+
+    elif "phone" in q or "number" in q:
+        return "Phone Number is your active contact number for communication."
+
+    elif "email" in q:
+        return "Email Address is your electronic mail used for official communication."
+
+    elif "nationality" in q:
+        return "Nationality means the country you belong to (example: Sri Lanka)."
+
+    elif "gender" in q:
+        return "Gender refers to male, female, or other (optional)."
+
+    elif "occupation" in q or "job" in q or "student" in q:
+        return "Occupation means your job or study status."
+
+    elif "work address" in q or "school address" in q:
+        return "Work or School Address is the location of your workplace or school."
+
+    elif "start date" in q or "joining date" in q:
+        return "Work Start Date is the date you started your job or studies."
+
+    elif "nic" in q or "id" in q or "identity" in q:
+        return "In Sri Lanka, ID Type is usually NIC (National Identity Card)."
+
+    elif "signature" in q:
+        return "Signature is your personal confirmation mark on the form."
 
     elif "form" in q:
-        return "Government forms are documents used for official applications."
+        return "A government form is an official document used to collect personal information."
 
     elif "hello" in q:
-        return "Hello! I am your Government Form Assistant."
+        return "Hello! I am your Sri Lankan Government Form Assistant."
 
     else:
-        return "I am offline AI. Ask simple questions about NIC, passport, address, or forms."
+        return "I can help with Name, DOB, Address, NIC, Email, Phone, Occupation, and more."
 
 # =========================================================
 # PAGE CONFIG
@@ -64,7 +87,7 @@ st.set_page_config(
 )
 
 # =========================================================
-# UI STYLE
+# UI DESIGN
 # =========================================================
 
 st.markdown("""
@@ -98,10 +121,10 @@ h1,h2,h3,h4,h5,h6,p,label{
 with st.sidebar:
     st.title("🤖 AI Assistant")
 
-    if api_key:
-        st.success("🔗 Online Mode (ChatGPT)")
+    if client:
+        st.success("ONLINE MODE (ChatGPT)")
     else:
-        st.warning("⚡ Offline Mode")
+        st.warning("OFFLINE MODE")
 
     st.info("""
 🇱🇰 Government Form Assistant
@@ -111,11 +134,13 @@ with st.sidebar:
 ✅ Voice Input  
 """)
 
+    st.write("Made By Jathusvarman")
+
 # =========================================================
 # TITLE
 # =========================================================
 
-st.title("🇱🇰 AI Government Form Assistant (Hybrid)")
+st.title("🇱🇰 AI Government Form Assistant (Hybrid System)")
 
 # =========================================================
 # LANGUAGE
@@ -132,7 +157,7 @@ selected_language = st.selectbox("🌐 Select Language", list(languages.keys()))
 target_lang = languages[selected_language]
 
 # =========================================================
-# IMAGE OCR
+# OCR SECTION
 # =========================================================
 
 st.write("## 📄 Upload Form")
@@ -197,52 +222,40 @@ text_question = st.text_input("💬 Ask Your Question")
 user_question = text_question or voice_question
 
 # =========================================================
-# AI RESPONSE (HYBRID LOGIC)
+# AI RESPONSE (HYBRID)
 # =========================================================
 
 if user_question:
 
     with st.spinner("Thinking..."):
 
-        # -----------------------------
-        # ONLINE MODE (CHATGPT)
-        # -----------------------------
+        # ONLINE MODE
         if client:
-
             try:
                 response = client.chat.completions.create(
                     model="gpt-4o-mini",
                     messages=[
-                        {"role": "system", "content": "You are a helpful Sri Lankan government form assistant."},
+                        {"role": "system", "content": "You are a Sri Lankan government form assistant."},
                         {"role": "user", "content": user_question}
                     ]
                 )
-
                 ai_answer = response.choices[0].message.content
 
-            except Exception as e:
+            except:
                 ai_answer = offline_bot(user_question)
 
-        # -----------------------------
         # OFFLINE MODE
-        # -----------------------------
         else:
             ai_answer = offline_bot(user_question)
 
-        # =================================================
         # SHOW ANSWER
-        # =================================================
-
         st.markdown(f"""
         <div class="chat-box">
         🤖 {ai_answer}
         </div>
         """, unsafe_allow_html=True)
 
-        # =================================================
         # TEXT TO SPEECH
-        # =================================================
-
         try:
             tts = gTTS(text=ai_answer, lang=target_lang)
             temp_audio = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
