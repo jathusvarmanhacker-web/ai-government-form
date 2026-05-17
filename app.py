@@ -1,5 +1,5 @@
 # =========================================================
-# 🇱🇰 AI GOVERNMENT FORM ASSISTANT (CHATGPT VERSION)
+# 🇱🇰 AI GOVERNMENT FORM ASSISTANT (HYBRID VERSION)
 # Made By Jathusvarman
 # =========================================================
 
@@ -17,11 +17,41 @@ from dotenv import load_dotenv
 from openai import OpenAI
 
 # =========================================================
-# LOAD API KEY SAFELY
+# LOAD API KEY (SAFE)
 # =========================================================
 
 load_dotenv()
-client = OpenAI(api_key=os.getenv("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"))
+api_key = os.getenv("OPENAI_API_KEY")
+
+client = OpenAI(api_key=api_key) if api_key else None
+
+# =========================================================
+# OFFLINE AI BOT (NO API REQUIRED)
+# =========================================================
+
+def offline_bot(question):
+    q = question.lower()
+
+    if "nic" in q:
+        return "NIC is National Identity Card used in Sri Lanka."
+
+    elif "passport" in q:
+        return "Passport is an official travel document for international travel."
+
+    elif "birth" in q:
+        return "Birth certificate is an official record of birth details."
+
+    elif "address" in q:
+        return "Address means your residential location details."
+
+    elif "form" in q:
+        return "Government forms are documents used for official applications."
+
+    elif "hello" in q:
+        return "Hello! I am your Government Form Assistant."
+
+    else:
+        return "I am offline AI. Ask simple questions about NIC, passport, address, or forms."
 
 # =========================================================
 # PAGE CONFIG
@@ -34,7 +64,7 @@ st.set_page_config(
 )
 
 # =========================================================
-# CUSTOM CSS
+# UI STYLE
 # =========================================================
 
 st.markdown("""
@@ -67,21 +97,25 @@ h1,h2,h3,h4,h5,h6,p,label{
 
 with st.sidebar:
     st.title("🤖 AI Assistant")
+
+    if api_key:
+        st.success("🔗 Online Mode (ChatGPT)")
+    else:
+        st.warning("⚡ Offline Mode")
+
     st.info("""
-🇱🇰 Sri Lanka Government Form Helper
+🇱🇰 Government Form Assistant
 
 ✅ OCR Scanner  
-✅ ChatGPT AI  
-✅ Translation  
-✅ Voice Assistant  
+✅ ChatGPT / Offline AI  
+✅ Voice Input  
 """)
-    st.write("Made By Jathusvarman")
 
 # =========================================================
 # TITLE
 # =========================================================
 
-st.title("🇱🇰 AI Government Form Assistant")
+st.title("🇱🇰 AI Government Form Assistant (Hybrid)")
 
 # =========================================================
 # LANGUAGE
@@ -98,7 +132,7 @@ selected_language = st.selectbox("🌐 Select Language", list(languages.keys()))
 target_lang = languages[selected_language]
 
 # =========================================================
-# IMAGE UPLOAD + OCR
+# IMAGE OCR
 # =========================================================
 
 st.write("## 📄 Upload Form")
@@ -133,7 +167,6 @@ if image:
 st.write("## 🎤 Voice Input")
 
 audio_bytes = audio_recorder()
-
 voice_question = ""
 
 if audio_bytes:
@@ -150,7 +183,6 @@ if audio_bytes:
             audio = recognizer.record(source)
 
         voice_question = recognizer.recognize_google(audio)
-
         st.success(f"You said: {voice_question}")
 
     except Exception as e:
@@ -165,48 +197,60 @@ text_question = st.text_input("💬 Ask Your Question")
 user_question = text_question or voice_question
 
 # =========================================================
-# CHATGPT RESPONSE
+# AI RESPONSE (HYBRID LOGIC)
 # =========================================================
 
 if user_question:
 
     with st.spinner("Thinking..."):
 
-        try:
-            response = client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "You are a helpful Sri Lankan government form assistant."
-                    },
-                    {
-                        "role": "user",
-                        "content": user_question
-                    }
-                ]
-            )
+        # -----------------------------
+        # ONLINE MODE (CHATGPT)
+        # -----------------------------
+        if client:
 
-            ai_answer = response.choices[0].message.content
-
-            st.markdown(f"""
-            <div class="chat-box">
-            🤖 {ai_answer}
-            </div>
-            """, unsafe_allow_html=True)
-
-            # TEXT TO SPEECH
             try:
-                tts = gTTS(text=ai_answer, lang=target_lang)
-                temp_audio = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
-                tts.save(temp_audio.name)
-                st.audio(temp_audio.name)
+                response = client.chat.completions.create(
+                    model="gpt-4o-mini",
+                    messages=[
+                        {"role": "system", "content": "You are a helpful Sri Lankan government form assistant."},
+                        {"role": "user", "content": user_question}
+                    ]
+                )
+
+                ai_answer = response.choices[0].message.content
 
             except Exception as e:
-                st.error(f"TTS Error: {e}")
+                ai_answer = offline_bot(user_question)
+
+        # -----------------------------
+        # OFFLINE MODE
+        # -----------------------------
+        else:
+            ai_answer = offline_bot(user_question)
+
+        # =================================================
+        # SHOW ANSWER
+        # =================================================
+
+        st.markdown(f"""
+        <div class="chat-box">
+        🤖 {ai_answer}
+        </div>
+        """, unsafe_allow_html=True)
+
+        # =================================================
+        # TEXT TO SPEECH
+        # =================================================
+
+        try:
+            tts = gTTS(text=ai_answer, lang=target_lang)
+            temp_audio = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
+            tts.save(temp_audio.name)
+            st.audio(temp_audio.name)
 
         except Exception as e:
-            st.error(f"AI Error: {e}")
+            st.error(f"TTS Error: {e}")
 
 # =========================================================
 # FOOTER
