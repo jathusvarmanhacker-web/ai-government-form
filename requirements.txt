@@ -1,4 +1,3 @@
-
 streamlit
 pillow
 pytesseract
@@ -7,3 +6,4 @@ numpy
 gtts
 SpeechRecognition
 audio-recorder-streamlit
+google-generativeai
