@@ -7,6 +7,8 @@ import streamlit as st
 from PIL import Image
 import pytesseract
 from deep_translator import GoogleTranslator
+from gtts import gTTS
+import tempfile
 import numpy as np
 
 # =========================================================
