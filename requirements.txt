@@ -1,8 +1,9 @@
+
 streamlit
 pillow
 pytesseract
 deep-translator
-opencv-python-headless
 numpy
-SpeechRecognition
 gtts
+SpeechRecognition
+audio-recorder-streamlit
