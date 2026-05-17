@@ -1,5 +1,5 @@
 # =========================================================
-# 🇱🇰 AI GOVERNMENT FORM ASSISTANT (HYBRID + FORM DATA)
+# 🇱🇰 AI GOVERNMENT FORM ASSISTANT (FULL FINAL VERSION)
 # Made By Jathusvarman
 # =========================================================
 
@@ -17,7 +17,7 @@ from dotenv import load_dotenv
 from openai import OpenAI
 
 # =========================================================
-# LOAD API KEY (SAFE)
+# LOAD API KEY
 # =========================================================
 
 load_dotenv()
@@ -25,58 +25,94 @@ api_key = os.getenv("sk-proj-Z7gQNylYOJ0i2lK_shf-cqUlgff78tnLVovwokNAODTqFRgeI4Q
 client = OpenAI(api_key=api_key) if api_key else None
 
 # =========================================================
-# OFFLINE FORM KNOWLEDGE BOT
+# UI LANGUAGE SYSTEM
+# =========================================================
+
+UI_TEXT = {
+    "English": {
+        "title": "AI Government Form Assistant",
+        "upload": "Upload Form",
+        "voice": "Voice Input",
+        "ask": "Ask Your Question",
+        "select_lang": "Select Language",
+        "sidebar": "AI Assistant",
+        "online": "ONLINE MODE (ChatGPT)",
+        "offline": "OFFLINE MODE",
+    },
+    "Tamil": {
+        "title": "AI அரசு படிவ உதவியாளர்",
+        "upload": "படிவத்தை பதிவேற்றவும்",
+        "voice": "குரல் உள்ளீடு",
+        "ask": "உங்கள் கேள்வியை கேளுங்கள்",
+        "select_lang": "மொழியை தேர்வு செய்க",
+        "sidebar": "AI உதவியாளர்",
+        "online": "ஆன்லைன் முறை (ChatGPT)",
+        "offline": "ஆஃப்லைன் முறை",
+    },
+    "Sinhala": {
+        "title": "AI රජයේ පෝරම සහායක",
+        "upload": "පෝරමය උඩුගත කරන්න",
+        "voice": "හඬ ආදානය",
+        "ask": "ඔබේ ප්‍රශ්නය අසන්න",
+        "select_lang": "භාෂාව තෝරන්න",
+        "sidebar": "AI සහායක",
+        "online": "මාර්ගගත ක්‍රමය (ChatGPT)",
+        "offline": "අක්‍රිය ක්‍රමය",
+    },
+    "Hindi": {
+        "title": "AI सरकारी फॉर्म सहायक",
+        "upload": "फॉर्म अपलोड करें",
+        "voice": "आवाज़ इनपुट",
+        "ask": "अपना प्रश्न पूछें",
+        "select_lang": "भाषा चुनें",
+        "sidebar": "AI सहायक",
+        "online": "ऑनलाइन मोड (ChatGPT)",
+        "offline": "ऑफलाइन मोड",
+    }
+}
+
+# =========================================================
+# OFFLINE BOT (FORM KNOWLEDGE)
 # =========================================================
 
 def offline_bot(question):
     q = question.lower()
 
     if "full name" in q or "name" in q:
-        return "Full Name means your complete legal name as written in official documents."
+        return "Full Name means your complete legal name."
 
-    elif "date of birth" in q or "dob" in q:
-        return "Date of Birth is your birth date in DD/MM/YYYY format."
+    elif "date of birth" in q:
+        return "Date of Birth is your birth date (DD/MM/YYYY)."
 
     elif "address" in q:
-        return "Address means your home location including street, city, and district."
+        return "Address means your home location details."
 
-    elif "phone" in q or "number" in q:
-        return "Phone Number is your active contact number for communication."
+    elif "phone" in q:
+        return "Phone Number is your contact number."
 
     elif "email" in q:
-        return "Email Address is your electronic mail used for official communication."
+        return "Email is used for communication."
 
     elif "nationality" in q:
-        return "Nationality means the country you belong to (example: Sri Lanka)."
+        return "Nationality means your country."
 
     elif "gender" in q:
-        return "Gender refers to male, female, or other (optional)."
+        return "Gender can be male, female, or other."
 
-    elif "occupation" in q or "job" in q or "student" in q:
-        return "Occupation means your job or study status."
+    elif "occupation" in q:
+        return "Occupation means job or student status."
 
-    elif "work address" in q or "school address" in q:
-        return "Work or School Address is the location of your workplace or school."
-
-    elif "start date" in q or "joining date" in q:
-        return "Work Start Date is the date you started your job or studies."
-
-    elif "nic" in q or "id" in q or "identity" in q:
-        return "In Sri Lanka, ID Type is usually NIC (National Identity Card)."
+    elif "nic" in q or "id" in q:
+        return "In Sri Lanka, ID is NIC (National Identity Card)."
 
     elif "signature" in q:
-        return "Signature is your personal confirmation mark on the form."
-
-    elif "form" in q:
-        return "A government form is an official document used to collect personal information."
+        return "Signature is your official confirmation mark."
 
     elif "hello" in q:
-        return "Hello! I am your Sri Lankan Government Form Assistant."
-    elif"owner" in q:
-            return"Jathusvarman Vilvarasan"
+        return "Hello! I am your Government Form Assistant."
 
     else:
-        return "I can help with Name, DOB, Address, NIC, Email, Phone, Occupation, and more."
+        return "I can help with form fields like Name, DOB, NIC, Address, Email, Phone."
 
 # =========================================================
 # PAGE CONFIG
@@ -89,7 +125,21 @@ st.set_page_config(
 )
 
 # =========================================================
-# UI DESIGN
+# LANGUAGE SELECT
+# =========================================================
+
+selected_language = st.selectbox("🌐 Language", list(UI_TEXT.keys()))
+ui = UI_TEXT[selected_language]
+
+target_lang = {
+    "English": "en",
+    "Tamil": "ta",
+    "Sinhala": "si",
+    "Hindi": "hi"
+}[selected_language]
+
+# =========================================================
+# UI STYLE
 # =========================================================
 
 st.markdown("""
@@ -121,50 +171,28 @@ h1,h2,h3,h4,h5,h6,p,label{
 # =========================================================
 
 with st.sidebar:
-    st.title("🤖 AI Assistant")
+    st.title(ui["sidebar"])
 
     if client:
-        st.success("ONLINE MODE (ChatGPT)")
+        st.success(ui["online"])
     else:
-        st.warning("OFFLINE MODE")
+        st.warning(ui["offline"])
 
-    st.info("""
-🇱🇰 Government Form Assistant
-
-✅ OCR Scanner  
-✅ ChatGPT / Offline AI  
-✅ Voice Input  
-""")
-
-    st.write("Made By Jathusvarman")
+    st.info("🇱🇰 Government Form Assistant")
 
 # =========================================================
 # TITLE
 # =========================================================
 
-st.title("🇱🇰 AI Government Form Assistant (Hybrid System)")
-
-# =========================================================
-# LANGUAGE
-# =========================================================
-
-languages = {
-    "English": "en",
-    "Tamil": "ta",
-    "Sinhala": "si",
-    "Hindi": "hi"
-}
-
-selected_language = st.selectbox("🌐 Select Language", list(languages.keys()))
-target_lang = languages[selected_language]
+st.title(ui["title"])
 
 # =========================================================
 # OCR SECTION
 # =========================================================
 
-st.write("## 📄 Upload Form")
+st.write("## 📄 " + ui["upload"])
 
-uploaded_file = st.file_uploader("Upload JPG / PNG", type=["jpg", "jpeg", "png"])
+uploaded_file = st.file_uploader("JPG / PNG", type=["jpg", "jpeg", "png"])
 
 image = None
 if uploaded_file:
@@ -174,15 +202,15 @@ if image:
     st.image(image, use_container_width=True)
 
     try:
-        extracted_text = pytesseract.image_to_string(image)
-        st.text(extracted_text)
+        text = pytesseract.image_to_string(image)
+        st.text(text)
 
-        translated_text = GoogleTranslator(
+        translated = GoogleTranslator(
             source='auto',
             target=target_lang
-        ).translate(extracted_text)
+        ).translate(text)
 
-        st.success(translated_text)
+        st.success(translated)
 
     except Exception as e:
         st.error(f"OCR Error: {e}")
@@ -191,7 +219,7 @@ if image:
 # VOICE INPUT
 # =========================================================
 
-st.write("## 🎤 Voice Input")
+st.write("## 🎤 " + ui["voice"])
 
 audio_bytes = audio_recorder()
 voice_question = ""
@@ -203,14 +231,14 @@ if audio_bytes:
         f.write(audio_bytes)
         audio_path = f.name
 
-    recognizer = sr.Recognizer()
+    r = sr.Recognizer()
 
     try:
         with sr.AudioFile(audio_path) as source:
-            audio = recognizer.record(source)
+            audio = r.record(source)
 
-        voice_question = recognizer.recognize_google(audio)
-        st.success(f"You said: {voice_question}")
+        voice_question = r.recognize_google(audio)
+        st.success(voice_question)
 
     except Exception as e:
         st.error(f"Voice Error: {e}")
@@ -219,8 +247,7 @@ if audio_bytes:
 # TEXT INPUT
 # =========================================================
 
-text_question = st.text_input("💬 Ask Your Question")
-
+text_question = st.text_input(ui["ask"])
 user_question = text_question or voice_question
 
 # =========================================================
@@ -231,41 +258,36 @@ if user_question:
 
     with st.spinner("Thinking..."):
 
-        # ONLINE MODE
         if client:
             try:
-                response = client.chat.completions.create(
+                res = client.chat.completions.create(
                     model="gpt-4o-mini",
                     messages=[
-                        {"role": "system", "content": "You are a Sri Lankan government form assistant."},
+                        {"role": "system", "content": "You are a government form assistant."},
                         {"role": "user", "content": user_question}
                     ]
                 )
-                ai_answer = response.choices[0].message.content
+                answer = res.choices[0].message.content
 
             except:
-                ai_answer = offline_bot(user_question)
-
-        # OFFLINE MODE
+                answer = offline_bot(user_question)
         else:
-            ai_answer = offline_bot(user_question)
+            answer = offline_bot(user_question)
 
-        # SHOW ANSWER
         st.markdown(f"""
         <div class="chat-box">
-        🤖 {ai_answer}
+        🤖 {answer}
         </div>
         """, unsafe_allow_html=True)
 
         # TEXT TO SPEECH
         try:
-            tts = gTTS(text=ai_answer, lang=target_lang)
-            temp_audio = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
-            tts.save(temp_audio.name)
-            st.audio(temp_audio.name)
-
-        except Exception as e:
-            st.error(f"TTS Error: {e}")
+            tts = gTTS(text=answer, lang=target_lang)
+            temp = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
+            tts.save(temp.name)
+            st.audio(temp.name)
+        except:
+            pass
 
 # =========================================================
 # FOOTER
