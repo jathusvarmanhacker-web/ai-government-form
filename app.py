@@ -13,7 +13,7 @@ from openai import OpenAI
 # =========================================================
 # OPENAI SETUP (USE ENV VARIABLE IN REAL DEPLOYMENT)
 # =========================================================
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+client = OpenAI(api_key=os.getenv("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"))
 
 # =========================================================
 # LOGIN SYSTEM
