@@ -1,15 +1,15 @@
 # =========================================================
 # SRI LANKA AI GOVERNMENT FORM ASSISTANT
-# WITH AI CHAT ASSISTANT
+# FINAL AI CHATBOT + VOICE VERSION
 # =========================================================
 
 import streamlit as st
 from PIL import Image
 import pytesseract
 from deep_translator import GoogleTranslator
+import numpy as np
 from gtts import gTTS
 import tempfile
-import numpy as np
 
 # =========================================================
 # PAGE SETTINGS
@@ -35,7 +35,8 @@ Upload a government form and get:
 - Translation
 - AI guidance
 - Missing field detection
-- AI form assistant
+- AI chatbot support
+- Voice assistant
 """)
 
 # =========================================================
@@ -86,11 +87,11 @@ if image is not None:
 
     st.write("## 🔍 Reading Form Text...")
 
+    extracted_text = ""
+
     # =====================================================
     # OCR
     # =====================================================
-
-    extracted_text = ""
 
     try:
 
@@ -199,146 +200,137 @@ if image is not None:
             st.warning(f"Possible Missing Field: {m}")
 
 # =========================================================
-# AI FORM ASSISTANT CHAT
+# SMART AI CHATBOT
 # =========================================================
 
 st.write("--------------------------------------------------")
-st.write("## 🤖 AI Form Assistant")
+st.write("## 🤖 Smart AI Assistant")
 
 st.write("""
 Ask questions like:
 - What is NIC?
 - How to fill surname?
 - What is permanent address?
-- How to upload form?
+- Hello
 """)
 
 user_question = st.text_input(
     "💬 Ask Your Question"
 )
 
+ai_answer = ""
+
 if user_question:
 
     question = user_question.lower()
 
+    # =====================================================
+    # AI ANSWERS
+    # =====================================================
+
     if "nic" in question:
 
         if selected_language == "Tamil":
-            st.success(
-                "NIC என்பது தேசிய அடையாள அட்டை எண்."
-            )
+            ai_answer = "NIC என்பது தேசிய அடையாள அட்டை எண்."
 
         elif selected_language == "Sinhala":
-            st.success(
-                "NIC යනු ජාතික හැඳුනුම්පත් අංකයයි."
-            )
+            ai_answer = "NIC යනු ජාතික හැඳුනුම්පත් අංකයයි."
 
         else:
-            st.success(
-                "NIC means National Identity Card Number."
-            )
+            ai_answer = "NIC means National Identity Card Number."
 
     elif "surname" in question:
 
         if selected_language == "Tamil":
-            st.success(
-                "Surname என்பது குடும்பப்பெயர்."
-            )
+            ai_answer = "Surname என்பது குடும்பப்பெயர்."
 
         elif selected_language == "Sinhala":
-            st.success(
-                "Surname යනු ඔබගේ වාසගමයි."
-            )
+            ai_answer = "Surname යනු ඔබගේ වාසගමයි."
 
         else:
-            st.success(
-                "Surname means your family name."
-            )
+            ai_answer = "Surname means your family name."
 
     elif "address" in question:
 
         if selected_language == "Tamil":
-            st.success(
-                "Permanent Address என்பது உங்கள் நிரந்தர முகவரி."
-            )
+            ai_answer = "Permanent Address என்பது உங்கள் நிரந்தர முகவரி."
 
         elif selected_language == "Sinhala":
-            st.success(
-                "Permanent Address යනු ඔබගේ ස්ථිර ලිපිනයයි."
-            )
+            ai_answer = "Permanent Address යනු ඔබගේ ස්ථිර ලිපිනයයි."
 
         else:
-            st.success(
-                "Permanent Address means your home address."
-            )
+            ai_answer = "Permanent Address means your home address."
 
-    elif "date of birth" in question:
+    elif "birth" in question:
 
         if selected_language == "Tamil":
-            st.success(
-                "உங்கள் பிறந்த தேதியை சரியாக எழுதுங்கள்."
-            )
+            ai_answer = "உங்கள் பிறந்த தேதியை சரியாக எழுதுங்கள்."
 
         elif selected_language == "Sinhala":
-            st.success(
-                "ඔබගේ උපන්දිනය නිවැරදිව ඇතුළත් කරන්න."
-            )
+            ai_answer = "ඔබගේ උපන්දිනය නිවැරදිව ඇතුළත් කරන්න."
 
         else:
-            st.success(
-                "Enter your birth date correctly."
-            )
+            ai_answer = "Enter your correct birth date."
+
+    elif "hello" in question:
+
+        if selected_language == "Tamil":
+            ai_answer = "வணக்கம்! நான் உங்கள் AI உதவியாளர்."
+
+        elif selected_language == "Sinhala":
+            ai_answer = "ආයුබෝවන්! මම ඔබගේ AI සහායකයා."
+
+        else:
+            ai_answer = "Hello! I am your AI Government Form Assistant."
 
     elif "how to fill" in question:
 
         if selected_language == "Tamil":
-            st.success(
-                "ஒவ்வொரு புலத்தையும் கவனமாக நிரப்புங்கள்."
-            )
+            ai_answer = "ஒவ்வொரு புலத்தையும் கவனமாக நிரப்புங்கள்."
 
         elif selected_language == "Sinhala":
-            st.success(
-                "සෑම කොටසක්ම සැලකිලිමත්ව පුරවන්න."
-            )
+            ai_answer = "සෑම කොටසක්ම සැලකිලිමත්ව පුරවන්න."
 
         else:
-            st.success(
-                "Fill every field carefully with correct details."
-            )
-
-    elif "upload" in question:
-
-        if selected_language == "Tamil":
-            st.success(
-                "JPG அல்லது PNG கோப்பை பதிவேற்றவும்."
-            )
-
-        elif selected_language == "Sinhala":
-            st.success(
-                "JPG හෝ PNG ගොනුවක් උඩුගත කරන්න."
-            )
-
-        else:
-            st.success(
-                "Upload a JPG or PNG form image."
-            )
+            ai_answer = "Fill every field carefully."
 
     else:
 
         if selected_language == "Tamil":
-            st.info(
-                "மன்னிக்கவும். அந்த கேள்வி இன்னும் ஆதரிக்கப்படவில்லை."
-            )
+            ai_answer = "மன்னிக்கவும். அந்த கேள்வி இன்னும் ஆதரிக்கப்படவில்லை."
 
         elif selected_language == "Sinhala":
-            st.info(
-                "සමාවන්න. එම ප්‍රශ්නයට තවම සහය නොමැත."
-            )
+            ai_answer = "සමාවන්න. එම ප්‍රශ්නයට තවම සහය නොමැත."
 
         else:
-            st.info(
-                "Sorry, I do not understand that question yet."
-            )
+            ai_answer = "Sorry, I do not understand that question yet."
+
+    # =====================================================
+    # SHOW ANSWER
+    # =====================================================
+
+    st.success(ai_answer)
+
+    # =====================================================
+    # VOICE OUTPUT
+    # =====================================================
+
+    try:
+
+        tts = gTTS(ai_answer)
+
+        temp_audio = tempfile.NamedTemporaryFile(
+            delete=False,
+            suffix=".mp3"
+        )
+
+        tts.save(temp_audio.name)
+
+        st.audio(temp_audio.name)
+
+    except Exception as e:
+
+        st.error(f"Voice Error: {e}")
 
 # =========================================================
 # FUTURE FEATURES
@@ -350,12 +342,13 @@ st.write("## 🚀 Future AI Features")
 
 st.write("""
 🎤 Voice Assistant  
-🧠 AI Chatbot  
+🧠 Advanced AI Chatbot  
 📄 PDF Form Reading  
 ✍️ Auto Form Filling  
 🌐 Government Website Navigation  
 📱 Mobile App Version  
 🔊 Text-to-Speech Guidance  
 📌 Smart Error Detection  
-☁️ Cloud Database Support                                                                                                             Made By V.Jathusvarman
+☁️ Cloud Database Support  
 """)
+           
