@@ -4,3 +4,5 @@ pytesseract
 deep-translator
 opencv-python-headless
 numpy
+SpeechRecognition
+gtts
