@@ -17,10 +17,11 @@ import google.generativeai as genai
 # GEMINI AI API
 # =========================================================
 
+# ⚠️ PUT YOUR NEW API KEY HERE
 genai.configure(api_key="AIzaSyAi0cugk43G0PxmFO_1zgSQc8g0Omhp0RA")
 
 # ✅ FIXED MODEL
-model = genai.GenerativeModel("gemini-pro")
+model = genai.GenerativeModel("gemini-1.5-flash")
 
 # =========================================================
 # PAGE CONFIG
@@ -79,14 +80,14 @@ with st.sidebar:
     st.title("🤖 AI Assistant")
 
     st.info("""
-    🇱🇰 Sri Lanka Government Form Helper
+🇱🇰 Sri Lanka Government Form Helper
 
-    ✅ OCR Scanner
-    ✅ AI Chatbot
-    ✅ Translation
-    ✅ Voice Assistant
-    ✅ Multi Language
-    """)
+✅ OCR Scanner
+✅ AI Chatbot
+✅ Translation
+✅ Voice Assistant
+✅ Multi Language
+""")
 
     st.write("---")
 
@@ -136,7 +137,6 @@ uploaded_file = st.file_uploader(
 image = None
 
 if uploaded_file is not None:
-
     image = Image.open(uploaded_file)
 
 # =========================================================
@@ -257,11 +257,9 @@ text_question = st.text_input(
 user_question = ""
 
 if text_question:
-
     user_question = text_question
 
 elif voice_question:
-
     user_question = voice_question
 
 # =========================================================
@@ -275,33 +273,33 @@ if user_question:
         try:
 
             prompt = f"""
-            You are a helpful Sri Lankan Government Form AI Assistant.
+You are a helpful Sri Lankan Government Form AI Assistant.
 
-            Answer clearly in {selected_language} language.
+Answer clearly in {selected_language} language.
 
-            Help users understand:
-            - NIC
-            - Passport
-            - Birth certificate
-            - Government applications
-            - Address fields
-            - Personal details
-            - School forms
-            - Official forms
+Help users understand:
+- NIC
+- Passport
+- Birth certificate
+- Government applications
+- Address fields
+- Personal details
+- School forms
+- Official forms
 
-            User Question:
-            {user_question}
-            """
+User Question:
+{user_question}
+"""
 
             response = model.generate_content(prompt)
 
             ai_answer = response.text
 
             st.markdown(f"""
-            <div class="chat-box">
-            🤖 {ai_answer}
-            </div>
-            """, unsafe_allow_html=True)
+<div class="chat-box">
+🤖 {ai_answer}
+</div>
+""", unsafe_allow_html=True)
 
             # =============================================
             # TEXT TO SPEECH
@@ -340,13 +338,13 @@ st.write("---")
 st.write("## 🚀 Future Features")
 
 st.write("""
-🧠 Real-time AI support  
-📄 PDF support  
-📱 Mobile app  
-☁️ Database storage  
-🔊 Better voice assistant  
-🌐 Sinhala OCR  
-📷 Camera scanner  
+🧠 Real-time AI support
+📄 PDF support
+📱 Mobile app
+☁️ Database storage
+🔊 Better voice assistant
+🌐 Sinhala OCR
+📷 Camera scanner
 """)
 
 # =========================================================
